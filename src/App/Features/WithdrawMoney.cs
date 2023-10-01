@@ -22,16 +22,13 @@ namespace Moneybox.App.Features
             var fromBalance = from.Balance - amount;
             if (fromBalance < 0m)
             {
-                throw new InvalidOperationException("Insufficient funds to make transfer");
-            }
-
-            if (fromBalance < 500m)
-            {
-                this.notificationService.NotifyFundsLow(from.User.Email);
+                throw new InvalidOperationException("Insufficient funds to withdraw money");
             }
 
             from.Balance = from.Balance - amount;
             from.Withdrawn = from.Withdrawn - amount;
+
+            from.NotifyFundsLow();
 
             this.accountRepository.Update(from);
         }

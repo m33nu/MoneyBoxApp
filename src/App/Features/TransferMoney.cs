@@ -26,20 +26,10 @@ namespace Moneybox.App.Features
                 throw new InvalidOperationException("Insufficient funds to make transfer");
             }
 
-            if (fromBalance < 500m)
-            {
-                this.notificationService.NotifyFundsLow(from.User.Email);
-            }
-
             var paidIn = to.PaidIn + amount;
             if (paidIn > Account.PayInLimit)
             {
                 throw new InvalidOperationException("Account pay in limit reached");
-            }
-
-            if (Account.PayInLimit - paidIn < 500m)
-            {
-                this.notificationService.NotifyApproachingPayInLimit(to.User.Email);
             }
 
             from.Balance = from.Balance - amount;
@@ -47,6 +37,9 @@ namespace Moneybox.App.Features
 
             to.Balance = to.Balance + amount;
             to.PaidIn = to.PaidIn + amount;
+
+            from.NotifyFundsLow();
+            to.NotifyApproachingPayInLimit();
 
             this.accountRepository.Update(from);
             this.accountRepository.Update(to);
